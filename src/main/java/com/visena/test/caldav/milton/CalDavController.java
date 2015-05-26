@@ -11,13 +11,11 @@ import io.milton.annotations.ChildrenOf;
 import io.milton.annotations.Get;
 import io.milton.annotations.ICalData;
 import io.milton.annotations.ModifiedDate;
-import io.milton.annotations.Name;
 import io.milton.annotations.PutChild;
 import io.milton.annotations.ResourceController;
 import io.milton.annotations.Root;
 import io.milton.annotations.UniqueId;
 import io.milton.annotations.Users;
-import io.milton.resource.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -59,12 +57,6 @@ public class CalDavController {
 		return users;
 	}
 
-	@Name
-	public String getBolle(Resource resource) {
-		System.out.println(String.format("Resource %s, uniqueID: %s", resource.getName(), resource.getUniqueId()));
-		return "visena";
-	}
-
 	@ChildrenOf
 	public CalendarsHome getCalendarsHome(User user) {
 		return new CalendarsHome(user);
@@ -81,13 +73,11 @@ public class CalDavController {
 		return cal.user.getMeetings();
 	}
 
-/*
 	@CalendarDateRangeQuery
 	public List<Meeting> getCalendarForRange(Calendar cal, Date fromDate, Date toDate) {
-		System.out.println(String.format("Getting calendar %s - %s", fromDate, toDate));
+		System.out.println(String.format("Getting calendar for user %s, period %s - %s", cal.user.getName(), fromDate, toDate));
 		return cal.user.getMeetings();
 	}
-*/
 
 	@Get
 	@ICalData
