@@ -6,7 +6,7 @@
 	   http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
 
-	<security:http auto-config='true'>
+	<security:http auto-config='true' create-session="stateless">
 		<security:intercept-url pattern="/**" access="ROLE_USER" />
 		<security:http-basic />
 	</security:http>
