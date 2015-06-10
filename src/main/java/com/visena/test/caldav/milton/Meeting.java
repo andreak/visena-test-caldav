@@ -1,4 +1,4 @@
-package com.hellocaldav;
+package com.visena.test.caldav.milton;
 
 import java.util.Date;
 
@@ -7,6 +7,7 @@ public class Meeting {
     private long id;
     private String name;  // filename for the meeting. Must be unique within the user
     private Date modifiedDate;
+    private Date createdDate;
     private byte[] icalData;
 
     public String getName() {
@@ -31,6 +32,14 @@ public class Meeting {
 
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 
     public byte[] getIcalData() {

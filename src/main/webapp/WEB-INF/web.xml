@@ -5,21 +5,6 @@
 		 version="3.0"
 		 metadata-complete="true">
 
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>
-			classpath*:securityContext.xml
-		</param-value>
-	</context-param>
-
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
-	</listener>
-
-
 	<filter>
 		<filter-name>miltonFilter</filter-name>
 		<filter-class>io.milton.servlet.MiltonFilter</filter-class>
@@ -51,17 +36,6 @@
             <param-value>false</param-value>
         </init-param>
     </filter>
-
-
-    <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
 
     <filter-mapping>
         <filter-name>miltonFilter</filter-name>

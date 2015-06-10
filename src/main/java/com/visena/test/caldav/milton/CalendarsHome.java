@@ -1,4 +1,4 @@
-package com.hellocaldav;
+package com.visena.test.caldav.milton;
 
 public class CalendarsHome {
 
