@@ -22,16 +22,9 @@ public class VisenaMiltonConfigurator extends DefaultMiltonConfigurator {
 		String contextPath = config.getServletContext().getContextPath() + (davPath != null ? davPath : "");
 		log.trace(String.format("Using contextPath: %s", contextPath));
 		builder.setContextPath(contextPath);
+		builder.setEnableDigestAuth(false);
+		builder.setFsRealm("Visena");
 		return super.configure(config);
 	}
 
-	@Override
-	protected void build() {
-		super.build();
-		if (builder.getSecurityManager() instanceof SimpleSecurityManager) {
-			SimpleSecurityManager securityManager = (SimpleSecurityManager) builder.getSecurityManager();
-			securityManager.setDigestGenerator(null);
-			securityManager.setRealm("Visena");
-		}
-	}
 }
