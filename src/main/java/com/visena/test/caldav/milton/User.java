@@ -31,4 +31,11 @@ public class User {
     public void setMeetings(List<Meeting> meetings) {
         this.meetings = meetings;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+            "name='" + name + '\'' +
+            '}';
+    }
 }

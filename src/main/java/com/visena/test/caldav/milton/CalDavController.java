@@ -1,5 +1,6 @@
 package com.visena.test.caldav.milton;
 
+import io.milton.annotations.AccessControlList;
 import io.milton.annotations.Authenticate;
 import io.milton.annotations.CalendarDateRangeQuery;
 import io.milton.annotations.Calendars;
@@ -10,15 +11,18 @@ import io.milton.annotations.Delete;
 import io.milton.annotations.Get;
 import io.milton.annotations.ICalData;
 import io.milton.annotations.ModifiedDate;
+import io.milton.annotations.Principal;
 import io.milton.annotations.PutChild;
 import io.milton.annotations.ResourceController;
 import io.milton.annotations.Root;
 import io.milton.annotations.UniqueId;
 import io.milton.annotations.Users;
+import io.milton.resource.AccessControlledResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -51,15 +55,15 @@ public class CalDavController {
 
 	@ChildrenOf
 	@Users
-	public List<User> getUsers(UsersHome usersHome) {
-//		log.debug(String.format("Getting users, auth as: %s", authentication.getPrincipal()));
+	public List<User> getUsers(UsersHome usersHome, @Principal User currentUser) {
+		log.debug(String.format("Getting users, auth as: %s", String.valueOf(currentUser)));
 		return users;
 	}
 
 	@ChildOf
 	@Users
-	public User findUserByName(UsersHome usersHome, final String userName) {
-		log.debug(String.format("findUserByName: %s", userName));
+	public User findUserByName(UsersHome usersHome, final String userName, @Principal User currentUser) {
+		log.debug(String.format("findUserByName(as %s): %s", String.valueOf(currentUser), userName));
 		User foundUser = users.stream().filter(x -> x.getName().equals(userName)).findFirst().orElse(null);
 		log.debug(String.format("findUserByName, found: %s", foundUser != null ? foundUser.getName() : "<null>"));
 		return foundUser;
@@ -76,14 +80,52 @@ public class CalDavController {
 		return new Calendar(cals.user);
 	}
 
+	@AccessControlList
+	public List<AccessControlledResource.Priviledge> getCalendarPrivs(Calendar target, User currentUser) {
+		log.debug("target.user: " + target.user + ", currentUser: " + currentUser);
+		if (currentUser == null) {
+			return AccessControlledResource.NONE;
+		} else if (target.user.getName().equals(currentUser.getName())) {
+			return AccessControlledResource.READ_WRITE;
+		} else {
+			return AccessControlledResource.READ_BROWSE;
+		}
+	}
+
+	@ChildOf
+	public Meeting getMeeting(Calendar cal, String uid, @Principal User currentUser) {
+		if (currentUser == null) return null;
+		Meeting foundMeeting = cal.user.getMeetings().stream().filter(x -> x.getName().equals(uid)).findFirst().orElse(null);
+		log.debug("Getting meeting as " + currentUser + ": Found meeting: " + foundMeeting);
+		return foundMeeting;
+	}
+
 	@ChildrenOf
-	public List<Meeting> getCalendar(Calendar cal) {
-		return getCalendarForRange(cal, null, null);
+	public List<Meeting> getCalendar(Calendar cal, @Principal User currentUser) {
+		if (currentUser == null) {
+			log.debug("currentUser is null, returning empty-list");
+			return Collections.emptyList();
+		}
+		return getCalendarForRange(cal, null, null, currentUser);
 	}
 
 	@CalendarDateRangeQuery
-	public List<Meeting> getCalendarForRange(Calendar cal, Date fromDate, Date toDate) {
-		log.debug(String.format("Getting calendar for user %s, period %s - %s", cal.user.getName(), fromDate, toDate));
+	public List<Meeting> getCalendarForRange(Calendar cal, Date fromDate, @Principal User currentUser) {
+		if (currentUser == null) {
+			log.debug("currentUser is null, returning empty-list");
+			return Collections.emptyList();
+		}
+		return getCalendarForRange(cal, fromDate, null, currentUser);
+	}
+
+	@CalendarDateRangeQuery
+	public List<Meeting> getCalendarForRange(Calendar cal, Date fromDate, Date toDate, @Principal User currentUser) {
+		if (currentUser == null) {
+			log.debug("currentUser is null, returning empty-list");
+			return Collections.emptyList();
+		}
+		log.debug(String.format("As currentUser %s: Getting calendar for user %s, period %s - %s", String.valueOf(currentUser)
+			, cal.user.getName(), fromDate, toDate));
 		return cal.user.getMeetings();
 	}
 
@@ -94,8 +136,12 @@ public class CalDavController {
 	}
 
 	@PutChild
-	public Meeting createMeeting(Calendar cal, byte[] ical, String newName) {
-		Meeting m = new Meeting();
+	public Meeting createMeeting(Calendar cal, byte[] ical, String newName, @Principal User currentUser) {
+		if (currentUser == null) {
+			return null;
+		}
+		log.debug("Creating as " + currentUser);
+		Meeting m = new Meeting(cal);
 		m.setIcalData(ical);
 		m.setName(newName);
 		m.setId(System.currentTimeMillis()); // just a unique ID for use with locking and etags
@@ -105,7 +151,11 @@ public class CalDavController {
 	}
 
 	@PutChild
-	public Meeting updateMeeting(Meeting m, byte[] ical) {
+	public Meeting updateMeeting(Meeting m, byte[] ical, @Principal User currentUser) {
+		if (currentUser == null) {
+			return null;
+		}
+		log.debug("Updating as " + currentUser);
 		m.setIcalData(ical);
 		m.setModifiedDate(new Date());
 		return m;
@@ -135,9 +185,11 @@ public class CalDavController {
 	}
 
 	@Delete
-	public void deleteMeeting(Calendar cal, Meeting m) {
-		log.debug("Deleting" + m);
-		cal.user.getMeetings().remove(m);
+	public void deleteMeeting(Meeting m, @Principal User currentUser) {
+		if (currentUser != null) {
+			log.debug("Deleting as " + currentUser + ": " + m);
+			m.cal.user.getMeetings().remove(m);
+		}
 	}
 
 	public final User createUser(String name, String password) {

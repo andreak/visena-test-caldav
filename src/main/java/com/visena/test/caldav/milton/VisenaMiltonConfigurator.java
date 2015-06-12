@@ -1,17 +1,12 @@
 package com.visena.test.caldav.milton;
 
-import io.milton.http.*;
-import io.milton.http.fs.NullSecurityManager;
-import io.milton.http.fs.SimpleSecurityManager;
+import io.milton.http.HttpManager;
 import io.milton.servlet.Config;
 import io.milton.servlet.DefaultMiltonConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class VisenaMiltonConfigurator extends DefaultMiltonConfigurator {
 	private static final Logger log = LoggerFactory.getLogger(VisenaMiltonConfigurator.class);
