@@ -4,8 +4,8 @@ import java.util.Date;
 
 public class Meeting {
 
-    private long id;
-    private String name;  // filename for the meeting. Must be unique within the user
+    public long id;
+    public String name;  // filename for the meeting. Must be unique within the user
     private Date modifiedDate;
     private Date createdDate;
     private byte[] icalData;
@@ -13,22 +13,6 @@ public class Meeting {
 
     public Meeting(Calendar cal) {
         this.cal = cal;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public Date getModifiedDate() {

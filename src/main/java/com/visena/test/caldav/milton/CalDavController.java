@@ -11,6 +11,7 @@ import io.milton.annotations.Delete;
 import io.milton.annotations.Get;
 import io.milton.annotations.ICalData;
 import io.milton.annotations.ModifiedDate;
+import io.milton.annotations.Name;
 import io.milton.annotations.Principal;
 import io.milton.annotations.PutChild;
 import io.milton.annotations.ResourceController;
@@ -95,7 +96,7 @@ public class CalDavController {
 	@ChildOf
 	public Meeting getMeeting(Calendar cal, String uid, @Principal User currentUser) {
 //		if (currentUser == null) return null;
-		Meeting foundMeeting = cal.user.getMeetings().stream().filter(x -> x.getName().equals(uid)).findFirst().orElse(null);
+		Meeting foundMeeting = cal.user.getMeetings().stream().filter(x -> x.name.equals(uid)).findFirst().orElse(null);
 		log.debug("Getting meeting as " + currentUser + ": Found meeting: " + foundMeeting);
 		return foundMeeting;
 	}
@@ -130,8 +131,8 @@ public class CalDavController {
 		log.debug("Creating as " + currentUser);
 		Meeting m = new Meeting(cal);
 		m.setIcalData(ical);
-		m.setName(newName);
-		m.setId(System.currentTimeMillis()); // just a unique ID for use with locking and etags
+		m.name = newName;
+		m.id = (System.currentTimeMillis()); // just a unique ID for use with locking and etags
 		m.setModifiedDate(new Date());
 		cal.user.getMeetings().add(m);
 		return m;
@@ -148,6 +149,14 @@ public class CalDavController {
 		return m;
 	}
 
+	@Delete
+	public void deleteMeeting(Meeting m, @Principal User currentUser) {
+		if (currentUser != null) {
+			log.debug("Deleting as " + currentUser + ": " + m);
+			m.cal.user.getMeetings().remove(m);
+		}
+	}
+
 	@Authenticate
 	public Boolean authenticate(User user, String password) {
 		log.debug(String.format("Authenticating %s", user.getName()));
@@ -157,8 +166,13 @@ public class CalDavController {
 	}
 
 	@UniqueId
-	public long getUniqueId(Meeting m) {
-		return m.getId();
+	public String getUniqueId(Meeting m) {
+		return String.valueOf(m.id);
+	}
+
+	@Name
+	public String getName(Meeting m) {
+		return m.name;
 	}
 
 	@ModifiedDate
@@ -169,14 +183,6 @@ public class CalDavController {
 	@CreatedDate
 	public Date getCreatedDate(Meeting m) {
 		return m.getCreatedDate();
-	}
-
-	@Delete
-	public void deleteMeeting(Meeting m, @Principal User currentUser) {
-		if (currentUser != null) {
-			log.debug("Deleting as " + currentUser + ": " + m);
-			m.cal.user.getMeetings().remove(m);
-		}
 	}
 
 	public final User createUser(String name, String password) {
