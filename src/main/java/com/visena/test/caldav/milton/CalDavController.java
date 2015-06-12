@@ -94,7 +94,7 @@ public class CalDavController {
 
 	@ChildOf
 	public Meeting getMeeting(Calendar cal, String uid, @Principal User currentUser) {
-		if (currentUser == null) return null;
+//		if (currentUser == null) return null;
 		Meeting foundMeeting = cal.user.getMeetings().stream().filter(x -> x.getName().equals(uid)).findFirst().orElse(null);
 		log.debug("Getting meeting as " + currentUser + ": Found meeting: " + foundMeeting);
 		return foundMeeting;
@@ -106,14 +106,9 @@ public class CalDavController {
 	}
 
 	@CalendarDateRangeQuery
-	public List<Meeting> getCalendarForRange(Calendar cal, Date fromDate, @Principal User currentUser) {
-		return getCalendarForRange(cal, fromDate, null, currentUser);
-	}
-
-	@CalendarDateRangeQuery
 	public List<Meeting> getCalendarForRange(Calendar cal, Date fromDate, Date toDate, @Principal User currentUser) {
 		if (currentUser == null) {
-			log.debug(String.format("currentUser is null (from= %s, to= %s ), returning empty-list", String.valueOf(fromDate), String.valueOf(toDate)));
+			log.warn(String.format("currentUser is null (from= %s, to= %s ), returning empty-list", String.valueOf(fromDate), String.valueOf(toDate)));
 			return Collections.emptyList();
 		}
 		log.debug(String.format("As currentUser %s: Getting calendar for user %s, period %s - %s", String.valueOf(currentUser)
