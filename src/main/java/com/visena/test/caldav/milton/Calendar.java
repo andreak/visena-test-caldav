@@ -4,6 +4,8 @@ public class Calendar {
 
     public final User user;
 
+	public String color = "#058F70";
+
 	public Calendar(User user) {
 		this.user = user;
 	}

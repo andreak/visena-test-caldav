@@ -2,6 +2,7 @@ package com.visena.test.caldav.milton;
 
 import io.milton.annotations.AccessControlList;
 import io.milton.annotations.Authenticate;
+import io.milton.annotations.CalendarColor;
 import io.milton.annotations.CalendarDateRangeQuery;
 import io.milton.annotations.Calendars;
 import io.milton.annotations.ChildOf;
@@ -82,6 +83,15 @@ public class CalDavController {
 	}
 
 	@AccessControlList
+	public List<AccessControlledResource.Priviledge> getUserPrivs(UsersHome target, User currentUser) {
+		if (currentUser == null) {
+			return AccessControlledResource.NONE;
+		} else {
+			return AccessControlledResource.READ_BROWSE;
+		}
+	}
+
+	@AccessControlList
 	public List<AccessControlledResource.Priviledge> getCalendarPrivs(Calendar target, User currentUser) {
 		log.debug("target.user: " + target.user + ", currentUser: " + currentUser);
 		if (currentUser == null) {
@@ -91,6 +101,23 @@ public class CalDavController {
 		} else {
 			return AccessControlledResource.READ_BROWSE;
 		}
+	}
+
+	@AccessControlList
+	public List<AccessControlledResource.Priviledge> getMeetingPrivs(Meeting target, User currentUser) {
+		log.debug("target.user: " + target.user + ", currentUser: " + currentUser);
+		if (currentUser == null) {
+			return AccessControlledResource.NONE;
+		} else if (target.user.getName().equals(currentUser.getName())) {
+			return AccessControlledResource.READ_WRITE;
+		} else {
+			return AccessControlledResource.READ_BROWSE;
+		}
+	}
+
+	@CalendarColor
+	public String getCalendarColor(Calendar cal) {
+		return cal.color;
 	}
 
 	@ChildOf
@@ -129,7 +156,7 @@ public class CalDavController {
 			return null;
 		}
 		log.debug("Creating as " + currentUser);
-		Meeting m = new Meeting(cal);
+		Meeting m = new Meeting(cal, currentUser);
 		m.setIcalData(ical);
 		m.name = newName;
 		m.id = (System.currentTimeMillis()); // just a unique ID for use with locking and etags

@@ -10,9 +10,11 @@ public class Meeting {
     private Date createdDate;
     private byte[] icalData;
     public final Calendar cal;
+    public final User user;
 
-    public Meeting(Calendar cal) {
+    public Meeting(Calendar cal, User user) {
         this.cal = cal;
+        this.user = user;
     }
 
     public Date getModifiedDate() {
