@@ -62,6 +62,15 @@ public class CalDavController {
 		return users;
 	}
 
+	// Don't use @Principal here
+	@ChildOf
+	@Users
+	public User findUserByName(UsersHome usersHome, final String userName) {
+		User foundUser = users.stream().filter(x -> x.getName().equals(userName)).findFirst().orElse(null);
+		log.debug(String.format("findUserByName, found: %s", foundUser != null ? foundUser.getName() : "<null>"));
+		return foundUser;
+	}
+/*
 	@ChildOf
 	@Users
 	public User findUserByName(UsersHome usersHome, final String userName, @Principal User currentUser) {
@@ -70,6 +79,7 @@ public class CalDavController {
 		log.debug(String.format("findUserByName, found: %s", foundUser != null ? foundUser.getName() : "<null>"));
 		return foundUser;
 	}
+*/
 
 	@ChildrenOf
 	public CalendarsHome getCalendarsHome(User user) {
@@ -80,6 +90,11 @@ public class CalDavController {
 	@Calendars
 	public Calendar getCalendarsHome(CalendarsHome cals) {
 		return new Calendar(cals.user);
+	}
+
+	@AccessControlList
+	public List<AccessControlledResource.Priviledge> getRootPrivs(CalDavController target, User currentUser) {
+		return AccessControlledResource.READ_BROWSE;
 	}
 
 	@AccessControlList

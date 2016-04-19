@@ -18,6 +18,7 @@ public class VisenaMiltonConfigurator extends DefaultMiltonConfigurator {
 		log.trace(String.format("Using contextPath: %s", contextPath));
 		builder.setContextPath(contextPath);
 		builder.setEnableDigestAuth(false);
+		builder.setEnableEarlyAuth(true);
 		builder.setFsRealm("Visena");
 		return super.configure(config);
 	}
